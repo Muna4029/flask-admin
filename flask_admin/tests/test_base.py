@@ -271,7 +271,8 @@ def test_add_category(admin):
 
 @pytest.mark.xfail(raises=Exception)
 def test_no_default(admin):
-    admin.add_view(base.BaseView())
+    with admin.app.app_context():
+        admin.add_view(base.BaseView())
 
 
 def test_call(app, admin):

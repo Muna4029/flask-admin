@@ -7,7 +7,6 @@ from wtforms import Field as WTField
 from wtforms import Form
 
 from flask_admin import helpers
-from flask_admin._compat import string_types
 from flask_admin._types import T_FORM_OPTS
 from flask_admin._types import T_INLINE_BASE_FORM_ADMIN
 from flask_admin._types import T_MODEL_VIEW
@@ -510,7 +509,7 @@ class Group(Macro):
                     self._addons.append(cnf)
 
         if append:
-            if not isinstance(append, tuple | list):
+            if not isinstance(append, (tuple, list)):
                 append = [append]
 
             for cnf in append:
@@ -655,7 +654,7 @@ class RuleSet:
         result = []
 
         for r in rules:
-            if isinstance(r, string_types):
+            if isinstance(r, (str, bytes)):
                 result.append(self.convert_string(r).configure(self, parent))
             elif isinstance(r, tuple | list):
                 row = Row(*r)
