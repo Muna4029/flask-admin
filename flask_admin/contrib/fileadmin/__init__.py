@@ -1036,7 +1036,7 @@ class BaseFileAdmin(BaseView, ActionsMixin):
         if not self.can_download:
             abort(404)
 
-        base_path, directory, path = self._normalize_path(path)
+        base_path, full_path, path = self._normalize_path(path)
 
         # backward compatibility with base_url
         base_url = self.get_base_url()
@@ -1044,7 +1044,7 @@ class BaseFileAdmin(BaseView, ActionsMixin):
             base_url = urljoin(self.get_url(".index_view"), base_url)
             return redirect(urljoin(quote(base_url), quote(path)))
 
-        return self.storage.send_file(directory)  # type: ignore[union-attr]
+        return self.storage.send_file(full_path)  # type: ignore[union-attr]
 
     @expose("/mkdir/", methods=("GET", "POST"))
     @expose("/mkdir/<path:path>", methods=("GET", "POST"))

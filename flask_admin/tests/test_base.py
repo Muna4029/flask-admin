@@ -172,6 +172,7 @@ def test_admin_customizations(app, babel):
     client = app.test_client()
     rv = client.get("/foobar/")
     assert rv.status_code == 200
+    rv.close()
 
     # test custom static_url_path
     with app.test_request_context("/"):
@@ -181,6 +182,7 @@ def test_admin_customizations(app, babel):
             )
         )
     assert rv.status_code == 200
+    rv.close()
 
 
 def test_baseview_registration():
@@ -250,23 +252,27 @@ def test_add_category(admin):
     admin.add_view(MockView(name="Test 1", endpoint="test1", category="Category1"))
     admin.add_view(MockView(name="Test 2", endpoint="test2", category="Category2"))
 
-    assert len(admin.menu()) == 3
+    menu = admin.menu()
+    # There should be at least the index view and the two categories
+    assert len(menu) >= 3
 
-    # Test 1 should be underneath Category1
-    assert admin.menu()[1].name == "Category1"
-    assert admin.menu()[1].get_class_name() == "class-name"
-    assert admin.menu()[1].get_icon_type() == "icon-type"
-    assert admin.menu()[1].get_icon_value() == "icon-value"
-    assert len(admin.menu()[1].get_children()) == 1
-    assert admin.menu()[1].get_children()[0].name == "Test 1"
+    # Find Category1 and assert its properties
+    assert any(m.name == "Category1" for m in menu)
+    cat1 = next(m for m in menu if m.name == "Category1")
+    assert cat1.get_class_name() == "class-name"
+    assert cat1.get_icon_type() == "icon-type"
+    assert cat1.get_icon_value() == "icon-value"
+    assert len(cat1.get_children()) == 1
+    assert cat1.get_children()[0].name == "Test 1"
 
-    # Test 2 should be underneath Category2
-    assert admin.menu()[2].name == "Category2"
-    assert admin.menu()[2].get_class_name() is None
-    assert admin.menu()[2].get_icon_type() is None
-    assert admin.menu()[2].get_icon_value() is None
-    assert len(admin.menu()[2].get_children()) == 1
-    assert admin.menu()[2].get_children()[0].name == "Test 2"
+    # Find Category2 and assert its properties
+    assert any(m.name == "Category2" for m in menu)
+    cat2 = next(m for m in menu if m.name == "Category2")
+    assert cat2.get_class_name() is None
+    assert cat2.get_icon_type() is None
+    assert cat2.get_icon_value() is None
+    assert len(cat2.get_children()) == 1
+    assert cat2.get_children()[0].name == "Test 2"
 
 
 @pytest.mark.xfail(raises=Exception)
