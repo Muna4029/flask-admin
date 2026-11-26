@@ -11,13 +11,48 @@
 # serve to show the default.
 
 import os
+import re
 import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath(".."))
-from flask_admin import __version__
+
+# Obtain package version without importing flask_admin to avoid import-time
+# side effects (which may open files or execute package code). Try package
+# metadata first, then fall back to reading the package __init__.py.
+__version__ = None
+try:
+    # Python 3.8+ stdlib
+    try:
+        from importlib.metadata import version as _get_version
+    except Exception:
+        # backport for older Pythons if installed
+        from importlib_metadata import version as _get_version
+    for dist_name in ("flask-admin", "flask_admin"):
+        try:
+            __version__ = _get_version(dist_name)
+            break
+        except Exception:
+            __version__ = None
+except Exception:
+    __version__ = None
+
+if not __version__:
+    # Fallback: parse __version__ from the package's __init__.py without importing.
+    init_path = os.path.join(os.path.abspath(".."), "flask_admin", "__init__.py")
+    try:
+        with open(init_path, encoding="utf-8") as f:
+            m = re.search(r"^__version__\s*=\s*[\'\"]([^\'\"]+)[\'\"]", f.read(), re.M)
+            if m:
+                __version__ = m.group(1)
+    except Exception:
+        __version__ = None
+
+if not __version__:
+    # Last resort default to a sensible placeholder
+    __version__ = "0+unknown"
 
 # -- General configuration -----------------------------------------------------
 
