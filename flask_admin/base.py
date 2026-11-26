@@ -881,7 +881,7 @@ class Admin:
         for p in admins:
             if p.endpoint == self.endpoint:
                 raise Exception(
-                    "Cannot have two Admin() instances with same" " endpoint name."
+                    "Cannot have two Admin() instances with same endpoint name."
                 )
 
             if p.url == self.url and p.subdomain == self.subdomain:
